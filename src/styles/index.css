@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+
+:root {
+  font-family: 'Manrope', sans-serif;
+  color: #17211f;
+  background: #f4f6f3;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --ink: #17211f;
+  --muted: #6d7975;
+  --line: #dbe2dd;
+  --panel: #ffffff;
+  --mint: #d9f3e6;
+  --green: #1c6b52;
+  --yellow: #f4bd58;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+button { font: inherit; }
+#root { min-height: 100vh; }
+.font-mono { font-family: 'DM Mono', monospace; }
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-rise-in { animation: rise-in 500ms ease-out both; }
+
+@keyframes tooltip-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes gate-settle {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-gate-settle { animation: gate-settle 200ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+.animate-tooltip { animation: tooltip-in 140ms ease-out both; }
+.drop-target-valid { transition: all 200ms ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}

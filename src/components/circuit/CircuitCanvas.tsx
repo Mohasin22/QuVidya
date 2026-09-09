@@ -1,0 +1,14 @@
+import { Info } from 'lucide-react'
+import { useCircuitStore } from '../../store/circuitStore'
+import type { GateDefinition, QuantumOperation } from '../../types/circuit'
+import { QubitWire } from './QubitWire'
+
+type CircuitCanvasProps = { onAddQubit: () => void; zoom?: number; selectedGate?: GateDefinition; pendingMultiQubit?: { gate: GateDefinition; column: number; controlQubit: number }; selectedOperationId?: string; onCellClick: (column: number, qubitIndex: number) => void; onOperationSelect: (operation: QuantumOperation) => void }
+
+export function CircuitCanvas({ onAddQubit, zoom = 1, selectedGate, pendingMultiQubit, selectedOperationId, onCellClick, onOperationSelect }: CircuitCanvasProps) {
+  const circuit = useCircuitStore((state) => state.circuit)
+  const highestColumn = circuit.operations.reduce((highest, operation) => Math.max(highest, operation.column), -1)
+  const columnCount = Math.max(6, highestColumn + 1)
+
+  return <section className="flex min-h-[350px] flex-col overflow-hidden bg-white"><div className="flex items-center justify-between border-b border-[#e9eeea] px-5 py-3 sm:px-6"><div className="flex items-center gap-3"><span className="size-2 rounded-full bg-[#f4bd58]" /><div><h2 className="text-[14px] font-extrabold">Bell state experiment</h2><p className="mt-0.5 font-mono text-[10px] text-[#8b9791]">{circuit.qubits} qubits · {circuit.operations.length} operations</p></div></div><span className="font-mono text-[10px] text-[#9aa49f]">{pendingMultiQubit ? `Control q[${pendingMultiQubit.controlQubit}]` : selectedGate ? `Placing ${selectedGate.displayLabel}` : `${Math.round(zoom * 100)}% zoom`}</span></div><div className="flex-1 overflow-auto bg-[#fbfcfa] px-5 py-10 sm:px-10"><div className="min-w-[560px]" style={{ width: `${100 / zoom}%`, transform: `scale(${zoom})`, transformOrigin: 'top left' }}><div className="mb-5 flex items-center justify-between"><span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#a1aaa5]">Circuit canvas</span><span className="flex items-center gap-1.5 text-[11px] text-[#9aa49f]"><Info size={13} /> {pendingMultiQubit ? 'Click a target in the same column' : selectedGate ? 'Click a cell to place' : 'Select a gate to begin'}</span></div><div className="overflow-hidden rounded-xl border border-[#e0e7e1] bg-white">{Array.from({ length: circuit.qubits }, (_, qubit) => <QubitWire key={qubit} qubitIndex={qubit} qubitCount={circuit.qubits} columnCount={columnCount} operations={circuit.operations} selectedOperationId={selectedOperationId} onCellClick={onCellClick} onOperationSelect={onOperationSelect} />)}</div><button className="mx-auto mt-5 flex items-center gap-1.5 rounded-lg border border-dashed border-[#c9d6cd] px-3 py-2 text-[11px] font-bold text-[#7e8d85] transition hover:border-[#1c6b52] hover:text-[#1c6b52]" type="button" onClick={onAddQubit}>Add qubit</button></div></div></section>
+}

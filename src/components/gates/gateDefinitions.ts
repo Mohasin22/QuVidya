@@ -1,0 +1,326 @@
+import type { GateDefinition, GateType } from '../../types/circuit'
+
+export type CategoryId = 'basic' | 'phase' | 'rotation' | 'multi-qubit' | 'operation'
+
+export type GateCategory = {
+  id: CategoryId
+  type: GateType
+  name: string
+  label: string
+  icon: 'grid' | 'wave' | 'rotate' | 'nodes' | 'settings'
+  expandedByDefault: boolean
+  gates: GateDefinition[]
+}
+
+type GateInput = {
+  id: string
+  name: string
+  displayLabel: string
+  symbol: string
+  gateType: GateType
+  qubitsRequired: number
+  requiresParameters: boolean
+  parameterName?: string
+  description: string
+  educationalExplanation: string
+  aliases: string[]
+}
+
+const createGate = (def: GateInput): GateDefinition => ({
+  id: def.id,
+  name: def.name,
+  displayLabel: def.displayLabel,
+  symbol: def.symbol,
+  category: categoryLabels[def.gateType],
+  gateType: def.gateType,
+  qubitsRequired: def.qubitsRequired,
+  qubitCount: def.qubitsRequired,
+  requiresParameters: def.requiresParameters,
+  requiresParameter: def.requiresParameters,
+  parameterName: def.parameterName,
+  parameters: def.requiresParameters ? [def.parameterName || 'theta'] : [],
+  description: def.description,
+  educationalExplanation: def.educationalExplanation,
+  aliases: def.aliases,
+})
+
+const categoryLabels: Record<GateType, string> = {
+  basic: 'Basic Gates',
+  phase: 'Phase Gates',
+  rotation: 'Rotation Gates',
+  'multi-qubit': 'Multi-Qubit Gates',
+  operation: 'Other Operations',
+}
+
+export const gateCategories: GateCategory[] = [
+  {
+    id: 'basic',
+    type: 'basic',
+    name: 'Basic Gates',
+    label: 'Basic Gates',
+    icon: 'grid',
+    expandedByDefault: true,
+    gates: [
+      createGate({
+        id: 'hadamard',
+        name: 'hadamard',
+        displayLabel: 'Hadamard',
+        symbol: 'H',
+        gateType: 'basic',
+        qubitsRequired: 1,
+        requiresParameters: false,
+        description: 'Creates quantum superposition.',
+        educationalExplanation: 'Creates equal superposition of |0⟩ and |1⟩ states. Maps |0⟩ → (|0⟩+|1⟩)/√2 and |1⟩ → (|0⟩-|1⟩)/√2.',
+        aliases: ['h', 'hadamard', 'superposition', 'basis change', 'had', 'h-gate'],
+      }),
+      createGate({
+        id: 'pauli-x',
+        name: 'pauli-x',
+        displayLabel: 'Pauli-X',
+        symbol: 'X',
+        gateType: 'basic',
+        qubitsRequired: 1,
+        requiresParameters: false,
+        description: 'Pauli-X gate. Flips |0⟩ and |1⟩.',
+        educationalExplanation: 'Quantum NOT gate. Flips |0⟩ to |1⟩ and |1⟩ to |0⟩ (π rotation around X-axis).',
+        aliases: ['x', 'pauli-x', 'not', 'bit flip', 'invert', 'x-gate', 'paulix'],
+      }),
+      createGate({
+        id: 'pauli-y',
+        name: 'pauli-y',
+        displayLabel: 'Pauli-Y',
+        symbol: 'Y',
+        gateType: 'basic',
+        qubitsRequired: 1,
+        requiresParameters: false,
+        description: 'Pauli-Y gate. Bit and phase flip.',
+        educationalExplanation: 'Flips both bit and phase. Rotates π radians around the Y-axis (maps |0⟩ → i|1⟩, |1⟩ → -i|0⟩).',
+        aliases: ['y', 'pauli-y', 'pauliy', 'y-gate', 'bit-phase flip'],
+      }),
+      createGate({
+        id: 'pauli-z',
+        name: 'pauli-z',
+        displayLabel: 'Pauli-Z',
+        symbol: 'Z',
+        gateType: 'basic',
+        qubitsRequired: 1,
+        requiresParameters: false,
+        description: 'Pauli-Z gate. Phase flip.',
+        educationalExplanation: 'Flips the phase of the |1⟩ state while leaving |0⟩ unchanged (maps |1⟩ → -|1⟩).',
+        aliases: ['z', 'pauli-z', 'pauliz', 'z-gate', 'phase flip', 'sign flip'],
+      }),
+      createGate({
+        id: 'identity',
+        name: 'identity',
+        displayLabel: 'Identity',
+        symbol: 'I',
+        gateType: 'basic',
+        qubitsRequired: 1,
+        requiresParameters: false,
+        description: 'Identity gate. Leaves qubit unchanged.',
+        educationalExplanation: 'No-op gate. Leaves the qubit state unchanged. Often used for timing and alignment.',
+        aliases: ['i', 'id', 'identity', 'idle', 'nop', 'none', 'i-gate'],
+      }),
+    ],
+  },
+  {
+    id: 'phase',
+    type: 'phase',
+    name: 'Phase Gates',
+    label: 'Phase Gates',
+    icon: 'wave',
+    expandedByDefault: false,
+    gates: [
+      createGate({
+        id: 's',
+        name: 's',
+        displayLabel: 'Phase S',
+        symbol: 'S',
+        gateType: 'phase',
+        qubitsRequired: 1,
+        requiresParameters: false,
+        description: 'π/2 phase gate.',
+        educationalExplanation: 'Quarter-turn phase gate (√Z). Adds a π/2 phase shift to |1⟩ (maps |1⟩ → i|1⟩).',
+        aliases: ['s', 's-gate', 'sqrt z', 'pi/2', 'quarter turn', 'phase s'],
+      }),
+      createGate({
+        id: 's-dagger',
+        name: 's-dagger',
+        displayLabel: 'S† Gate',
+        symbol: 'S†',
+        gateType: 'phase',
+        qubitsRequired: 1,
+        requiresParameters: false,
+        description: 'Inverse π/2 phase gate.',
+        educationalExplanation: 'Inverse quarter-turn phase gate. Adds a -π/2 phase shift to |1⟩ (maps |1⟩ → -i|1⟩).',
+        aliases: ['sdg', 's-dagger', 'sdag', 'inverse s', 's dagger', '-pi/2', 's-dag'],
+      }),
+      createGate({
+        id: 't',
+        name: 't',
+        displayLabel: 'Phase T',
+        symbol: 'T',
+        gateType: 'phase',
+        qubitsRequired: 1,
+        requiresParameters: false,
+        description: 'π/4 phase gate.',
+        educationalExplanation: 'Eighth-turn phase gate (√S). Adds a π/4 phase shift to |1⟩ (maps |1⟩ → e^(iπ/4)|1⟩).',
+        aliases: ['t', 't-gate', 'pi/4', 'eighth turn', 'phase t'],
+      }),
+      createGate({
+        id: 't-dagger',
+        name: 't-dagger',
+        displayLabel: 'T† Gate',
+        symbol: 'T†',
+        gateType: 'phase',
+        qubitsRequired: 1,
+        requiresParameters: false,
+        description: 'Inverse π/4 phase gate.',
+        educationalExplanation: 'Inverse eighth-turn phase gate. Adds a -π/4 phase shift to |1⟩ (maps |1⟩ → e^(-iπ/4)|1⟩).',
+        aliases: ['tdg', 't-dagger', 'tdag', 'inverse t', 't dagger', '-pi/4', 't-dag'],
+      }),
+      createGate({
+        id: 'phase',
+        name: 'phase',
+        displayLabel: 'Phase P',
+        symbol: 'P(θ)',
+        gateType: 'phase',
+        qubitsRequired: 1,
+        requiresParameters: true,
+        parameterName: 'θ',
+        description: 'Parameterized phase gate.',
+        educationalExplanation: 'Applies an arbitrary phase shift θ to |1⟩: |0⟩ → |0⟩, |1⟩ → e^(iθ)|1⟩.',
+        aliases: ['p', 'phase', 'p(θ)', 'p(theta)', 'phase shift', 'theta', 'arbitrary phase', 'u1'],
+      }),
+    ],
+  },
+  {
+    id: 'rotation',
+    type: 'rotation',
+    name: 'Rotation Gates',
+    label: 'Rotation Gates',
+    icon: 'rotate',
+    expandedByDefault: false,
+    gates: [
+      createGate({
+        id: 'rotation-x',
+        name: 'rotation-x',
+        displayLabel: 'Rotation X',
+        symbol: 'Rx(θ)',
+        gateType: 'rotation',
+        qubitsRequired: 1,
+        requiresParameters: true,
+        parameterName: 'θ',
+        description: 'Rotates a qubit around the X-axis.',
+        educationalExplanation: 'Single-qubit rotation by angle θ around the Bloch sphere X-axis: exp(-iθX/2).',
+        aliases: ['rx', 'rx(θ)', 'rx(theta)', 'rotation-x', 'rotation x', 'x rotation', 'rotate x', 'theta', 'angle'],
+      }),
+      createGate({
+        id: 'rotation-y',
+        name: 'rotation-y',
+        displayLabel: 'Rotation Y',
+        symbol: 'Ry(θ)',
+        gateType: 'rotation',
+        qubitsRequired: 1,
+        requiresParameters: true,
+        parameterName: 'θ',
+        description: 'Rotates a qubit around the Y-axis.',
+        educationalExplanation: 'Single-qubit rotation by angle θ around the Bloch sphere Y-axis: exp(-iθY/2).',
+        aliases: ['ry', 'ry(θ)', 'ry(theta)', 'rotation-y', 'rotation y', 'y rotation', 'rotate y', 'theta', 'angle'],
+      }),
+      createGate({
+        id: 'rotation-z',
+        name: 'rotation-z',
+        displayLabel: 'Rotation Z',
+        symbol: 'Rz(θ)',
+        gateType: 'rotation',
+        qubitsRequired: 1,
+        requiresParameters: true,
+        parameterName: 'θ',
+        description: 'Rotates a qubit around the Z-axis.',
+        educationalExplanation: 'Single-qubit rotation by angle θ around the Bloch sphere Z-axis: exp(-iθZ/2).',
+        aliases: ['rz', 'rz(θ)', 'rz(theta)', 'rotation-z', 'rotation z', 'z rotation', 'rotate z', 'theta', 'angle'],
+      }),
+    ],
+  },
+  {
+    id: 'multi-qubit',
+    type: 'multi-qubit',
+    name: 'Multi-Qubit Gates',
+    label: 'Multi-Qubit Gates',
+    icon: 'nodes',
+    expandedByDefault: true,
+    gates: [
+      createGate({
+        id: 'controlled-not',
+        name: 'controlled-not',
+        displayLabel: 'Controlled-NOT',
+        symbol: 'CX',
+        gateType: 'multi-qubit',
+        qubitsRequired: 2,
+        requiresParameters: false,
+        description: 'Controlled-NOT gate.',
+        educationalExplanation: 'Flips target qubit if control qubit is |1⟩. Essential for generating entanglement and Bell states.',
+        aliases: ['cx', 'cnot', 'controlled-not', 'controlled not', 'c-not', 'entangle', '2 qubits', 'bell state'],
+      }),
+      createGate({
+        id: 'controlled-z',
+        name: 'controlled-z',
+        displayLabel: 'Controlled-Z',
+        symbol: 'CZ',
+        gateType: 'multi-qubit',
+        qubitsRequired: 2,
+        requiresParameters: false,
+        description: 'Controlled-Z gate.',
+        educationalExplanation: 'Applies Pauli-Z phase flip to target qubit if control qubit is |1⟩. Symmetric 2-qubit entangling gate.',
+        aliases: ['cz', 'controlled-z', 'controlled z', 'c-z', 'controlled phase', '2 qubits'],
+      }),
+      createGate({
+        id: 'swap',
+        name: 'swap',
+        displayLabel: 'SWAP',
+        symbol: 'SWAP',
+        gateType: 'multi-qubit',
+        qubitsRequired: 2,
+        requiresParameters: false,
+        description: 'Exchanges the states of two qubits.',
+        educationalExplanation: 'Swaps the quantum states of two qubits: |ab⟩ → |ba⟩. Equivalent to three alternating CNOT gates.',
+        aliases: ['swap', 'sw', 'exchange', 'trade', 'swap qubits', '2 qubits'],
+      }),
+    ],
+  },
+  {
+    id: 'operation',
+    type: 'operation',
+    name: 'Other Operations',
+    label: 'Other Operations',
+    icon: 'settings',
+    expandedByDefault: false,
+    gates: [
+      createGate({
+        id: 'measurement',
+        name: 'measurement',
+        displayLabel: 'Measurement',
+        symbol: 'M',
+        gateType: 'operation',
+        qubitsRequired: 1,
+        requiresParameters: false,
+        description: 'Converts quantum state into classical bit.',
+        educationalExplanation: 'Measures the qubit in the computational basis {|0⟩, |1⟩} and stores the outcome in a classical bit.',
+        aliases: ['measurement', 'measure', 'm', 'meter', 'readout', 'collapse', 'classical'],
+      }),
+      createGate({
+        id: 'barrier',
+        name: 'barrier',
+        displayLabel: 'Barrier',
+        symbol: '||',
+        gateType: 'operation',
+        qubitsRequired: 1,
+        requiresParameters: false,
+        description: 'Prevents optimization across this point.',
+        educationalExplanation: 'Prevents compiler optimizations and re-ordering across this point in the circuit timeline.',
+        aliases: ['barrier', '||', 'bar', 'separator', 'divider', 'sync', 'freeze'],
+      }),
+    ],
+  },
+]
